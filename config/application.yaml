@@ -1,0 +1,124 @@
+###########################
+# Name Service
+###########################
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-name
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wfswarm-istio-tracing-name
+  labels:
+    app: wfswarm-istio-tracing-name
+spec:
+  ports:
+  - port: 8080
+    name: http
+  selector:
+    app: wfswarm-istio-tracing-name
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: wfswarm-istio-tracing-name
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wfswarm-istio-tracing-name
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      serviceAccountName: sa-name
+      containers:
+      - name: wildfly-swarm
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+  triggers:
+  - type: ConfigChange
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - wildfly-swarm
+      from:
+        kind: ImageStreamTag
+        name: wfswarm-istio-tracing-name:latest
+    type: ImageChange
+---
+###########################
+# Greeting Service
+###########################
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-greeting
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wfswarm-istio-tracing-greeting
+  labels:
+    app: wfswarm-istio-tracing-greeting
+spec:
+  ports:
+  - port: 8080
+    name: http
+  selector:
+    app: wfswarm-istio-tracing-greeting
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: wfswarm-istio-tracing-greeting
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wfswarm-istio-tracing-greeting
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      serviceAccountName: sa-greeting
+      containers:
+      - name: wildfly-swarm
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+  triggers:
+  - type: ConfigChange
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - wildfly-swarm
+      from:
+        kind: ImageStreamTag
+        name: wfswarm-istio-tracing-greeting:latest
+    type: ImageChange
+---
+###########################
+# Istio ingress
+###########################
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: gateway
+  annotations:
+    kubernetes.io/ingress.class: "istio"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: wfswarm-istio-tracing-greeting
+          servicePort: 8080
+      - path: /api/greeting
+        backend:
+          serviceName: wfswarm-istio-tracing-greeting
+          servicePort: 8080
+---
