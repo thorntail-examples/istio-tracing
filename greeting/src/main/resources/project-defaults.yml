@@ -1,4 +1,0 @@
-swarm:
-  jaeger:
-    service-name: 'greeting'
-    enable-b3-header-propagation: true

@@ -9,10 +9,10 @@
     <version>1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>wfswarm-istio-tracing-greeting</artifactId>
+  <artifactId>wfswarm-istio-tracing-cute-name</artifactId>
   <packaging>war</packaging>
 
-  <name>WildFly Swarm - Istio - Distributed Tracing Booster - Greeting Service with TLS</name>
+  <name>WildFly Swarm - Istio - Distributed Tracing Booster - Cute Name Service</name>
 
   <dependencies>
     <dependency>
@@ -22,29 +22,18 @@
 
     <dependency>
       <groupId>org.wildfly.swarm</groupId>
-      <artifactId>cdi</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.wildfly.swarm</groupId>
-      <artifactId>jaeger</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.wildfly.swarm</groupId>
       <artifactId>microprofile-health</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-client</artifactId>
-      <version>${version.resteasy}</version>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.wildfly.swarm</groupId>
       <artifactId>arquillian</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -84,11 +73,14 @@
                 <includes>
                   <include>wildfly-swarm</include>
                 </includes>
+                <excludes>
+                  <exclude>webapp</exclude>
+                </excludes>
               </generator>
               <enricher>
                 <config>
                   <wildfly-swarm-health-check>
-                    <path>/</path>
+                    <path>/health</path>
                   </wildfly-swarm-health-check>
                 </config>
               </enricher>

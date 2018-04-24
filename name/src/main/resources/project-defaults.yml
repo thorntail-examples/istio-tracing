@@ -1,4 +1,0 @@
-swarm:
-  jaeger:
-    service-name: 'name'
-    enable-b3-header-propagation: true

@@ -2,7 +2,7 @@
 
 Ensure Docker is installed and running.
 
-Download the binary for your operating system from https://github.com/openshift-istio/origin/releases/tag/istio-3.9-0.7.1-alpha1
+Download the binary for your operating system from https://github.com/openshift-istio/origin/releases
 
 # Start OpenShift/Istio
 
@@ -19,18 +19,12 @@ Create the namespace if one does not exist:
 oc new-project myproject
 ```
 
-Label the namespace for Istio Injection:
-```
-oc login -u system:admin
-oc label namespace myproject istio-injection=enabled
-```
-
 # Deploy the Application
 
 ```
 oc login -u developer -p pwd
-mvn clean package -pl name fabric8:build -Popenshift
-mvn clean package -pl greeting fabric8:build -Popenshift
+mvn clean package -pl cute-name-service fabric8:build -Popenshift
+mvn clean package -pl greeting-service fabric8:build -Popenshift
 oc create -f ./config/application.yaml
 ```
 

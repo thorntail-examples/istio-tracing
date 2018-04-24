@@ -9,26 +9,26 @@ metadata:
 apiVersion: v1
 kind: Service
 metadata:
-  name: wfswarm-istio-tracing-name
+  name: wfswarm-istio-tracing-cute-name
   labels:
-    app: wfswarm-istio-tracing-name
+    app: wfswarm-istio-tracing-cute-name
 spec:
   ports:
   - port: 8080
     name: http
   selector:
-    app: wfswarm-istio-tracing-name
+    app: wfswarm-istio-tracing-cute-name
 ---
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  name: wfswarm-istio-tracing-name
+  name: wfswarm-istio-tracing-cute-name
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: wfswarm-istio-tracing-name
+        app: wfswarm-istio-tracing-cute-name
       annotations:
         sidecar.istio.io/inject: "true"
     spec:
@@ -46,7 +46,7 @@ spec:
       - wildfly-swarm
       from:
         kind: ImageStreamTag
-        name: wfswarm-istio-tracing-name:latest
+        name: wfswarm-istio-tracing-cute-name:latest
     type: ImageChange
 ---
 ###########################

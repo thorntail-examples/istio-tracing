@@ -9,10 +9,10 @@
     <version>1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>wfswarm-istio-tracing-name</artifactId>
+  <artifactId>wfswarm-istio-tracing-greeting</artifactId>
   <packaging>war</packaging>
 
-  <name>WildFly Swarm - Istio - Distributed Tracing Booster - Name Service</name>
+  <name>WildFly Swarm - Istio - Distributed Tracing Booster - Greeting Service</name>
 
   <dependencies>
     <dependency>
@@ -22,8 +22,13 @@
 
     <dependency>
       <groupId>org.wildfly.swarm</groupId>
-      <artifactId>jaeger</artifactId>
+      <artifactId>cdi</artifactId>
     </dependency>
+
+    <!--<dependency>-->
+      <!--<groupId>org.wildfly.swarm</groupId>-->
+      <!--<artifactId>jaeger</artifactId>-->
+    <!--</dependency>-->
 
     <dependency>
       <groupId>org.wildfly.swarm</groupId>
@@ -31,14 +36,15 @@
     </dependency>
 
     <dependency>
-      <groupId>org.wildfly.swarm</groupId>
-      <artifactId>arquillian</artifactId>
-      <scope>test</scope>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-client</artifactId>
+      <version>${version.resteasy}</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
-      <groupId>io.rest-assured</groupId>
-      <artifactId>rest-assured</artifactId>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>arquillian</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -78,14 +84,11 @@
                 <includes>
                   <include>wildfly-swarm</include>
                 </includes>
-                <excludes>
-                  <exclude>webapp</exclude>
-                </excludes>
               </generator>
               <enricher>
                 <config>
                   <wildfly-swarm-health-check>
-                    <path>/health</path>
+                    <path>/</path>
                   </wildfly-swarm-health-check>
                 </config>
               </enricher>
