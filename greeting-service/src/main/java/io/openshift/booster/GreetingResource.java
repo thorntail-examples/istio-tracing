@@ -17,14 +17,12 @@
 package io.openshift.booster;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 /**
@@ -38,40 +36,11 @@ public class GreetingResource {
     @GET
     @Path("/greeting")
     @Produces("application/json")
-    public Response greeting(@HeaderParam("x-request-id") String xreq,
-                             @HeaderParam("x-b3-traceid") String xtraceid,
-                             @HeaderParam("x-b3-spanid") String xspanid,
-                             @HeaderParam("x-b3-parentspanid") String xparentspanid,
-                             @HeaderParam("x-b3-sampled") String xsampled,
-                             @HeaderParam("x-b3-flags") String xflags,
-                             @HeaderParam("x-ot-span-context") String xotspan) {
+    public Response greeting() {
         try {
             Client client = ClientBuilder.newClient();
             WebTarget webTarget = client.target(NAME_SERVICE_URL);
             Invocation.Builder requestBuilder = webTarget.path("/api/name").request();
-
-            // Setup Tracing Headers
-            if (null != xreq) {
-                requestBuilder.header("x-request-id", xreq);
-            }
-            if (null != xtraceid) {
-                requestBuilder.header("x-b3-traceid", xtraceid);
-            }
-            if (null != xspanid) {
-                requestBuilder.header("x-b3-spanid", xspanid);
-            }
-            if (null != xparentspanid) {
-                requestBuilder.header("x-b3-parentspanid", xparentspanid);
-            }
-            if (null != xsampled) {
-                requestBuilder.header("x-b3-sampled", xsampled);
-            }
-            if (null != xflags) {
-                requestBuilder.header("x-b3-flags", xflags);
-            }
-            if (null != xotspan) {
-                requestBuilder.header("x-ot-span-context", xotspan);
-            }
 
             String name = requestBuilder.get().readEntity(String.class);
 
