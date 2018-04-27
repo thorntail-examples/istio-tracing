@@ -19,7 +19,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Istio Mutual TLS Mission - WildFly Swarm</title>
+  <title>Istio Distributed Tracing Mission - WildFly Swarm</title>
   <link rel="stylesheet"
         href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
         integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
@@ -31,12 +31,12 @@
 <div class="container">
 
   <div>
-    <h1>Istio Mutual TLS Mission - WildFly Swarm</h1>
+    <h1>Istio Distributed Tracing Mission - WildFly Swarm</h1>
     <p class="lead">
-      TODO
+      This mission showcases the interaction of Distributed Tracing capabilities of Istio and properly instrumented microservices.
     </p>
     <p>
-      On this page you can invoke the <strong>greeting service</strong>. This service uses a <strong>name
+      On this page you can invoke the <strong>greeting service</strong>. This service uses a <strong>cute-name
       service</strong>.
     </p>
 
@@ -52,6 +52,19 @@
         <pre style="min-height:20em;"><code id="greeting-result"></code></pre>
       </div>
 
+    </div>
+
+    <div class="row">
+      <hr />
+      <h3>Instructions</h3>
+      <h4>The traces can be viewed by navigating to the Jaeger UI URL that is produced by the following
+        commands</h4>
+      <pre><code>echo https://$(oc get route/jaeger-query -n istio-system  -o 'jsonpath={.spec.host}')</code></pre>
+    </div>
+
+    <div class="row">
+      Once in the Jaeger UI, search for traces named
+      <pre>istio-ingress<code></code></pre>
     </div>
 
   </div>

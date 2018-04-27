@@ -22,11 +22,6 @@
 
     <dependency>
       <groupId>org.wildfly.swarm</groupId>
-      <artifactId>cdi</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.wildfly.swarm</groupId>
       <artifactId>jaeger</artifactId>
     </dependency>
 
@@ -40,6 +35,12 @@
       <artifactId>resteasy-client</artifactId>
       <version>${version.resteasy}</version>
       <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.opentracing.contrib</groupId>
+      <artifactId>opentracing-jaxrs2</artifactId>
+      <version>0.1.4</version>
     </dependency>
 
     <dependency>

@@ -1,6 +1,6 @@
 swarm:
   jaeger:
-    service-name: 'greeting'
+    service-name: 'cute-name'
     sampler-type: 'const'
     sampler-parameter: 1
     enable-b3-header-propagation: true

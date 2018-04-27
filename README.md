@@ -7,7 +7,7 @@ Download the binary for your operating system from https://github.com/openshift-
 # Start OpenShift/Istio
 
 ```
-istiooc cluster up --istio=true --istio-auth=true
+istiooc cluster up --istio
 ```
 
 # Prepare the Namespace

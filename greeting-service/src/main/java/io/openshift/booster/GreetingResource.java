@@ -25,6 +25,10 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
+import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature;
+import io.opentracing.contrib.jaxrs2.client.TracingProperties;
+import io.opentracing.util.GlobalTracer;
+
 /**
  * @author Ken Finnigan
  */
@@ -38,11 +42,16 @@ public class GreetingResource {
     @Produces("application/json")
     public Response greeting() {
         try {
-            Client client = ClientBuilder.newClient();
+            Client client = ClientBuilder.newBuilder()
+                    .register(ClientTracingFeature.class)
+                    .build();
             WebTarget webTarget = client.target(NAME_SERVICE_URL);
             Invocation.Builder requestBuilder = webTarget.path("/api/name").request();
 
-            String name = requestBuilder.get().readEntity(String.class);
+            String name = requestBuilder
+                    .property(TracingProperties.CHILD_OF, GlobalTracer.get().activeSpan().context())
+                    .get()
+                    .readEntity(String.class);
 
             return Response.ok()
                     .entity(new Greeting(String.format("Hello %s", name)))
