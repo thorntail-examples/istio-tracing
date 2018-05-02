@@ -17,7 +17,7 @@
   <name>WildFly Swarm - Istio - Distributed Tracing Booster</name>
 
   <properties>
-    <version.wildfly.swarm>2018.5.0-SNAPSHOT</version.wildfly.swarm>
+    <version.wildfly.swarm>2018.5.0</version.wildfly.swarm>
     <version.resteasy>3.0.24.Final</version.resteasy>
     <version.restassured>3.0.7</version.restassured>
   </properties>
@@ -31,7 +31,7 @@
     <dependencies>
       <dependency>
         <groupId>org.wildfly.swarm</groupId>
-        <artifactId>bom-all</artifactId>
+        <artifactId>bom</artifactId>
         <version>${version.wildfly.swarm}</version>
         <type>pom</type>
         <scope>import</scope>
