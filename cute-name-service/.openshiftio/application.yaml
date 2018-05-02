@@ -22,12 +22,21 @@ parameters:
   displayName: Source Directory
   value: .
   required: true
+- name: ARTIFACT_COPY_ARGS
+  description: Syntax to be used to copy uberjar files to the target directory
+  displayName: Copy Args
+  value: '*-swarm.jar'
+  required: true
 - name: GITHUB_WEBHOOK_SECRET
   description: A secret string used to configure the GitHub webhook.
   displayName: GitHub Webhook Secret
   required: true
   from: '[a-zA-Z0-9]{40}'
   generate: expression
+- name: MAVEN_MIRROR_URL
+  description: Maven Nexus Repository to be used during build phase
+  displayName:
+  required: false
 objects:
 - apiVersion: v1
   kind: ImageStream
@@ -71,8 +80,10 @@ objects:
           value: "-pl ${SOURCE_REPOSITORY_DIR}"
         - name: ARTIFACT_DIR
           value: "${SOURCE_REPOSITORY_DIR}/target"
+        - name: MAVEN_MIRROR_URL
+          value: "${MAVEN_MIRROR_URL}"
         - name: ARTIFACT_COPY_ARGS
-          value: "*-swarm.jar"
+          value: "${ARTIFACT_COPY_ARGS}"
       type: Source
     triggers:
     - github:
@@ -83,36 +94,15 @@ objects:
       type: ImageChange
   status:
     lastVersion: 0
-- apiVersion: v1
-  kind: Service
-  metadata:
-    labels:
-      app: wfswarm-istio-tracing-cute-name
-      group: io.openshift.booster
-    name: wfswarm-istio-tracing-cute-name
-  spec:
-    ports:
-    - name: http
-      port: 8080
-      protocol: TCP
-      targetPort: 8080
-    selector:
-      app: wfswarm-istio-tracing-cute-name
-      group: io.openshift.booster
 - apiVersion: apps.openshift.io/v1
   kind: DeploymentConfig
   metadata:
-    annotations:
     labels:
       app: wfswarm-istio-tracing-cute-name
-      group: io.openshift.booster
     name: wfswarm-istio-tracing-cute-name
   spec:
     replicas: 1
     revisionHistoryLimit: 2
-    selector:
-      app: wfswarm-istio-tracing-cute-name
-      group: io.openshift.booster
     strategy:
       rollingParams:
         timeoutSeconds: 3600
@@ -123,7 +113,6 @@ objects:
           sidecar.istio.io/inject: "true"
         labels:
           app: wfswarm-istio-tracing-cute-name
-          group: io.openshift.booster
       spec:
         containers:
         - env:
@@ -134,10 +123,10 @@ objects:
           image: wfswarm-istio-tracing-cute-name:latest
           imagePullPolicy: IfNotPresent
           livenessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-              scheme: HTTP
+            exec:
+              command:
+              - curl
+              - http://localhost:8080/health
             initialDelaySeconds: 180
           name: wildfly-swarm
           ports:
@@ -151,10 +140,10 @@ objects:
             name: jolokia
             protocol: TCP
           readinessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-              scheme: HTTP
+            exec:
+              command:
+              - curl
+              - http://localhost:8080/health
             initialDelaySeconds: 10
           securityContext:
             privileged: false
@@ -168,3 +157,17 @@ objects:
           kind: ImageStreamTag
           name: wfswarm-istio-tracing-cute-name:latest
       type: ImageChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      auth.istio.io/8000: NONE
+    labels:
+      app: wfswarm-istio-tracing-cute-name
+    name: wfswarm-istio-tracing-cute-name
+  spec:
+    ports:
+    - name: http
+      port: 8080
+    selector:
+      app: wfswarm-istio-tracing-cute-name
