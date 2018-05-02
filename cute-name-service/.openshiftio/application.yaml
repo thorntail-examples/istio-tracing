@@ -160,8 +160,6 @@ objects:
 - apiVersion: v1
   kind: Service
   metadata:
-    annotations:
-      auth.istio.io/8000: NONE
     labels:
       app: wfswarm-istio-tracing-cute-name
     name: wfswarm-istio-tracing-cute-name

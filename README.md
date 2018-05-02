@@ -1,45 +1,49 @@
-# Install Istio command
+# Istio Distributed Tracing Mission for WildFly Swarm
 
-Ensure Docker is installed and running.
+## Purpose
 
-Download the binary for your operating system from https://github.com/openshift-istio/origin/releases
+Showcase Distributed Tracing in Istio with Jaeger in WildFly Swarm applications
 
-# Start OpenShift/Istio
+## Prerequisites
 
+* Docker installed and running
+* OpenShift and Istio environment up and running with mTLS _disabled_ (See https://github.com/openshift-istio/istio-docs/blob/master/user-journey.adoc for details)
+
+## Launcher Flow Setup
+
+If the Booster is installed through the Launcher and the Continuous Delivery flow, no additional steps are necessary.
+
+Skip to the _Use Cases_ section.
+
+## Local Source to Image Build (S2I)
+
+### Prepare the Namespace
+
+Create a new namespace/project:
 ```
-istiooc cluster up --istio
-```
-
-# Prepare the Namespace
-
-**This mission assumes that `myproject` namespace is used.**
-
-Create the namespace if one does not exist:
-```
-oc new-project myproject
-```
-
-# Deploy the Application
-
-```
-oc login -u developer -p pwd
-mvn clean package -pl cute-name-service fabric8:build -Popenshift
-mvn clean package -pl greeting-service fabric8:build -Popenshift
-oc create -f ./config/application.yaml
+oc new-project <whatever valid project name you want>
 ```
 
-# Use the Application
+### Build and Deploy the Application
 
-Get ingress route (further referred as ${INGRESS_ROUTE}):
+#### With Source to Image build (S2I)
 
+Run the following commands to apply and execute the OpenShift templates that will configure and deploy the applications:
+```bash
+find . | grep openshiftio | grep application | xargs -n 1 oc apply -f
+
+oc new-app --template=wfswarm-istio-tracing-greeting-service -p SOURCE_REPOSITORY_URL=https://github.com/wildfly-swarm-openshiftio-boosters/wfswarm-istio-tracing -p SOURCE_REPOSITORY_REF=master -p SOURCE_REPOSITORY_DIR=greeting-service
+oc new-app --template=wfswarm-istio-tracing-cute-name-service -p SOURCE_REPOSITORY_URL=https://github.com/wildfly-swarm-openshiftio-boosters/wfswarm-istio-tracing -p SOURCE_REPOSITORY_REF=master -p SOURCE_REPOSITORY_DIR=cute-name-service
 ```
-oc login -u system:admin
-oc get route -n istio-system
-```
 
-Copy and paste the HOST/PORT value that starts with `istio-ingress-istio-system` into your browser.
+## Use Cases
 
-You will be presented with the UI. Click on "Invoke" to get the response of "Hello World".
+### Create and view application traces
 
-Open a new browser window, copying and pasting the HOST/PORT value that starts with `jaeger-query-istio-system`.
-Select `istio-ingress` from the "Service" dropdown and click "Find Traces".
+1. Retrieve the URL for the Istio Ingress route, with the below command, and open it in a web browser.
+    ```
+    echo http://$(oc get route istio-ingress -o jsonpath='{.spec.host}{"\n"}' -n istio-system)/
+    ```
+2. The user will be presented with the web page of the Booster
+3. Click the "Invoke" button. You should see a "cute" hello message appear in the result box.
+4. Follow the instructions in the webpage to access the Jaeger UI to view the application traces.

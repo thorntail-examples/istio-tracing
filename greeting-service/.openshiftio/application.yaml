@@ -161,8 +161,6 @@ objects:
   kind: Service
   metadata:
     name: wfswarm-istio-tracing-greeting
-    annotations:
-      auth.istio.io/8000: NONE
     labels:
       app: wfswarm-istio-tracing-greeting
   spec:
