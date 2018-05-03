@@ -7,7 +7,7 @@ Showcase Distributed Tracing in Istio with Jaeger in WildFly Swarm applications
 ## Prerequisites
 
 * Docker installed and running
-* OpenShift and Istio environment up and running with mTLS __disabled__ (See https://github.com/openshift-istio/istio-docs/blob/master/user-journey.adoc for details)
+* OpenShift and Istio environment up and running (See https://github.com/openshift-istio/istio-docs/blob/master/user-journey.adoc for details)
 
 ## Launcher Flow Setup
 
