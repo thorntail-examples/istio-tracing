@@ -35,7 +35,7 @@ import io.opentracing.util.GlobalTracer;
 @Path("/")
 public class GreetingResource {
 
-    private static final String NAME_SERVICE_URL = "http://wfswarm-istio-tracing-cute-name:8080";
+    private static final String NAME_SERVICE_URL = "http://thorntail-istio-tracing-cute-name:8080";
 
     @GET
     @Path("/greeting")
