@@ -5,28 +5,28 @@
 
   <parent>
     <groupId>io.openshift.booster</groupId>
-    <artifactId>wfswarm-istio-tracing-parent</artifactId>
+    <artifactId>thorntail-istio-tracing-parent</artifactId>
     <version>2-SNAPSHOT</version>
   </parent>
 
-  <artifactId>wfswarm-istio-tracing-greeting</artifactId>
+  <artifactId>thorntail-istio-tracing-greeting</artifactId>
   <packaging>war</packaging>
 
-  <name>WildFly Swarm - Istio - Distributed Tracing Booster - Greeting Service</name>
+  <name>Thorntail Swarm - Istio - Distributed Tracing Booster - Greeting Service</name>
 
   <dependencies>
     <dependency>
-      <groupId>org.wildfly.swarm</groupId>
+      <groupId>io.thorntail</groupId>
       <artifactId>jaxrs</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.wildfly.swarm</groupId>
+      <groupId>io.thorntail</groupId>
       <artifactId>jaeger</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.wildfly.swarm</groupId>
+      <groupId>io.thorntail</groupId>
       <artifactId>microprofile-health</artifactId>
     </dependency>
 
@@ -47,8 +47,8 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.wildfly.swarm</groupId>
-        <artifactId>wildfly-swarm-plugin</artifactId>
+        <groupId>io.thorntail</groupId>
+        <artifactId>thorntail-maven-plugin</artifactId>
         <configuration>
           <properties>
             <java.net.preferIPv4Stack>true</java.net.preferIPv4Stack>
@@ -77,16 +77,9 @@
             <configuration>
               <generator>
                 <includes>
-                  <include>wildfly-swarm</include>
+                  <include>thorntail-v2</include>
                 </includes>
               </generator>
-              <enricher>
-                <config>
-                  <wildfly-swarm-health-check>
-                    <path>/</path>
-                  </wildfly-swarm-health-check>
-                </config>
-              </enricher>
             </configuration>
           </plugin>
         </plugins>

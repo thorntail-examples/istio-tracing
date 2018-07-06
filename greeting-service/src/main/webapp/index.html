@@ -19,7 +19,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Istio Distributed Tracing Mission - WildFly Swarm</title>
+  <title>Istio Distributed Tracing Mission - Thorntail</title>
   <link rel="stylesheet"
         href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
         integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
@@ -31,7 +31,7 @@
 <div class="container">
 
   <div>
-    <h1>Istio Distributed Tracing Mission - WildFly Swarm</h1>
+    <h1>Istio Distributed Tracing Mission - Thorntail</h1>
     <p class="lead">
       This mission showcases the interaction of Distributed Tracing capabilities of Istio and properly instrumented microservices.
     </p>
@@ -80,7 +80,7 @@
     $(document).ready(function() {
 
       $("#invoke").click(function(e) {
-          $.getJSON("/api/greeting", function(res) {
+          $.getJSON(createURL("api/greeting"), function(res) {
             $("#greeting-result").prepend(JSON.stringify(res.content) + "\n");
           })
           .fail(function(jqxhr, textStatus, error) {
@@ -93,6 +93,13 @@
         $("#greeting-result").html("");
         e.preventDefault();
       });
+
+      function createURL(name) {
+        if (window.location.href.endsWith("/")) {
+          return name;
+        }
+        return "thorntail-istio-tracing/" + name;
+      }
     });
 
   </script>
