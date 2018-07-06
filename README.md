@@ -40,9 +40,9 @@ oc new-app --template=thorntail-istio-tracing-cute-name-service -p SOURCE_REPOSI
 
 ### Create and view application traces
 
-1. Retrieve the URL for the Istio Ingress route, with the below command, and open it in a web browser.
+1. Retrieve the URL for the Istio Ingress Gateway route, with the below command, and open it in a web browser.
     ```
-    echo http://$(oc get route istio-ingress -o jsonpath='{.spec.host}{"\n"}' -n istio-system)/
+    echo http://$(oc get route istio-ingressgateway -o jsonpath='{.spec.host}{"\n"}' -n istio-system)/thorntail-istio-tracing
     ```
 2. The user will be presented with the web page of the Booster
 3. Click the "Invoke" button. You should see a "cute" hello message appear in the result box.
