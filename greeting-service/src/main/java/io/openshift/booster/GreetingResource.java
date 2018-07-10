@@ -58,7 +58,7 @@ public class GreetingResource {
                     .build();
         } catch (Exception e) {
             return Response.serverError()
-                    .entity("Failed to communicate with `wfswarm-istio-tracing-name` due to: " + e.getMessage())
+                    .entity("Failed to communicate with `thorntail-istio-tracing-cute-name` due to: " + e.getMessage())
                     .build();
         }
     }
