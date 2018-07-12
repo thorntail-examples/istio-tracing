@@ -38,6 +38,8 @@ oc new-app --template=thorntail-istio-tracing-cute-name-service -p SOURCE_REPOSI
 
 ## Use Cases
 
+Any steps issuing `oc` commands require the user to have run `oc login` first and switched to the appropriate project with `oc project <project name>`.
+
 ### Create and view application traces
 
 1. Create a Gateway and Virtual Service in Istio so that we can access the service within the Mesh:
