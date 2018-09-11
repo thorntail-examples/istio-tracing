@@ -17,12 +17,30 @@
   <dependencies>
     <dependency>
       <groupId>io.thorntail</groupId>
-      <artifactId>microprofile</artifactId>
+      <artifactId>jaxrs</artifactId>
     </dependency>
 
     <dependency>
       <groupId>io.thorntail</groupId>
       <artifactId>jaeger</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.thorntail</groupId>
+      <artifactId>microprofile-health</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-client</artifactId>
+      <version>${version.resteasy}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.opentracing.contrib</groupId>
+      <artifactId>opentracing-jaxrs2</artifactId>
+      <version>0.1.4</version>
     </dependency>
   </dependencies>
 

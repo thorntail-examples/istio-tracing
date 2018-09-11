@@ -17,7 +17,12 @@
   <dependencies>
     <dependency>
       <groupId>io.thorntail</groupId>
-      <artifactId>microprofile</artifactId>
+      <artifactId>jaxrs</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.thorntail</groupId>
+      <artifactId>microprofile-health</artifactId>
     </dependency>
 
     <dependency>

@@ -16,17 +16,18 @@
  */
 package io.openshift.booster;
 
-import java.net.URL;
-
-import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import io.opentracing.Tracer;
-import io.smallrye.opentracing.SmallRyeClientTracingFeature;
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
+import io.opentracing.contrib.jaxrs2.client.ClientTracingFeature;
+import io.opentracing.contrib.jaxrs2.client.TracingProperties;
+import io.opentracing.util.GlobalTracer;
 
 /**
  * @author Ken Finnigan
@@ -36,21 +37,21 @@ public class GreetingResource {
 
     private static final String NAME_SERVICE_URL = "http://thorntail-istio-tracing-cute-name:8080";
 
-    @Inject
-    Tracer tracer;
-
     @GET
     @Path("/greeting")
     @Produces("application/json")
     public Response greeting() {
         try {
-            NameService nameService =
-                    RestClientBuilder.newBuilder()
-                            .baseUrl(new URL(NAME_SERVICE_URL))
-                            .register(new SmallRyeClientTracingFeature(tracer))
-                            .build(NameService.class);
+            Client client = ClientBuilder.newBuilder()
+                    .register(ClientTracingFeature.class)
+                    .build();
+            WebTarget webTarget = client.target(NAME_SERVICE_URL);
+            Invocation.Builder requestBuilder = webTarget.path("/api/name").request();
 
-            String name = nameService.getName();
+            String name = requestBuilder
+                    .property(TracingProperties.CHILD_OF, GlobalTracer.get().activeSpan().context())
+                    .get()
+                    .readEntity(String.class);
 
             return Response.ok()
                     .entity(new Greeting(String.format("Hello %s", name)))
