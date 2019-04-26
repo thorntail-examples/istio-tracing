@@ -15,7 +15,7 @@
  *  limitations under the License.
  *
  */
-package io.openshift.booster;
+package io.thorntail.example;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;

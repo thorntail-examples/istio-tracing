@@ -1,16 +1,17 @@
 apiVersion: v1
 kind: Template
 metadata:
-  name: thorntail-istio-tracing-greeting-service
+  name: thorntail-istio-tracing-greeting
   annotations:
     iconClass: icon-jboss
     tags: thorntail, distributed tracing, java, microservice
     template.openshift.io/provider-display-name: "Red Hat, Inc."
-    description: The Istio Distributed Tracing Mission shows tracing with Jaeger on Istio
+    description: The Istio Distributed Tracing example shows distributed tracing with Jaeger on Istio
 parameters:
 - name: SOURCE_REPOSITORY_URL
   description: The source URL for the application
   displayName: Source URL
+  value: https://github.com/thorntail-examples/istio-tracing.git
   required: true
 - name: SOURCE_REPOSITORY_REF
   description: The branch name for the application
@@ -20,12 +21,7 @@ parameters:
 - name: SOURCE_REPOSITORY_DIR
   description: The location within the source repo of the application
   displayName: Source Directory
-  value: .
-  required: true
-- name: ARTIFACT_COPY_ARGS
-  description: Syntax to be used to copy uberjar files to the target directory
-  displayName: Copy Args
-  value: '*-thorntail.jar'
+  value: greeting-service
   required: true
 - name: GITHUB_WEBHOOK_SECRET
   description: A secret string used to configure the GitHub webhook.
@@ -33,10 +29,6 @@ parameters:
   required: true
   from: '[a-zA-Z0-9]{40}'
   generate: expression
-- name: MAVEN_MIRROR_URL
-  description: Maven Nexus Repository to be used during build phase
-  displayName:
-  required: false
 objects:
 - apiVersion: v1
   kind: ImageStream
@@ -80,10 +72,8 @@ objects:
           value: "-pl ${SOURCE_REPOSITORY_DIR}"
         - name: ARTIFACT_DIR
           value: "${SOURCE_REPOSITORY_DIR}/target"
-        - name: MAVEN_MIRROR_URL
-          value: "${MAVEN_MIRROR_URL}"
         - name: ARTIFACT_COPY_ARGS
-          value: "${ARTIFACT_COPY_ARGS}"
+          value: "*-thorntail.jar"
       type: Source
     triggers:
     - github:
@@ -99,10 +89,14 @@ objects:
   metadata:
     labels:
       app: thorntail-istio-tracing-greeting
+      group: io.thorntail.example
     name: thorntail-istio-tracing-greeting
   spec:
     replicas: 1
     revisionHistoryLimit: 2
+    selector:
+      app: thorntail-istio-tracing-greeting
+      group: io.thorntail.example
     strategy:
       rollingParams:
         timeoutSeconds: 3600
@@ -113,6 +107,7 @@ objects:
           sidecar.istio.io/inject: "true"
         labels:
           app: thorntail-istio-tracing-greeting
+          group: io.thorntail.example
       spec:
         containers:
         - env:
@@ -123,6 +118,8 @@ objects:
           image: thorntail-istio-tracing-greeting:latest
           imagePullPolicy: IfNotPresent
           livenessProbe:
+            # the usual `httpGet` probe won't work, because the Istio proxy in the sidecar container
+            # will prevent the kubelet from reaching the health endpoint
             exec:
               command:
               - curl
@@ -140,6 +137,8 @@ objects:
             name: jolokia
             protocol: TCP
           readinessProbe:
+            # the usual `httpGet` probe won't work, because the Istio proxy in the sidecar container
+            # will prevent the kubelet from reaching the health endpoint
             exec:
               command:
               - curl
@@ -163,9 +162,13 @@ objects:
     name: thorntail-istio-tracing-greeting
     labels:
       app: thorntail-istio-tracing-greeting
+      group: io.thorntail.example
   spec:
     ports:
-    - port: 8080
-      name: http
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
     selector:
       app: thorntail-istio-tracing-greeting
+      group: io.thorntail.example

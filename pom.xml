@@ -1,25 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~
+  ~  Copyright 2018 Red Hat, Inc, and individual contributors.
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~  http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  ~
+  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>io.openshift</groupId>
-    <artifactId>booster-parent</artifactId>
-    <version>24</version>
-  </parent>
-
-  <groupId>io.openshift.booster</groupId>
+  <groupId>io.thorntail.example</groupId>
   <artifactId>thorntail-istio-tracing-parent</artifactId>
   <version>5-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>Thorntail - Istio - Distributed Tracing Booster</name>
+  <name>Thorntail - Istio - Distributed Tracing</name>
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
   <properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <version.fabric8-maven-plugin>4.1.0</version.fabric8-maven-plugin>
+    <version.maven-war-plugin>3.2.2</version.maven-war-plugin>
     <version.thorntail>2.4.0.Final</version.thorntail>
-    <version.resteasy>3.6.2.Final</version.resteasy>
-    <version.restassured>3.1.1</version.restassured>
+
+    <fabric8.generator.from>registry.access.redhat.com/redhat-openjdk-18/openjdk18-openshift:1.6</fabric8.generator.from>
   </properties>
 
   <modules>
@@ -36,13 +61,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-
-      <dependency>
-        <groupId>io.rest-assured</groupId>
-        <artifactId>rest-assured</artifactId>
-        <version>${version.restassured}</version>
-        <scope>test</scope>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -53,6 +71,12 @@
           <groupId>io.thorntail</groupId>
           <artifactId>thorntail-maven-plugin</artifactId>
           <version>${version.thorntail}</version>
+          <configuration>
+            <properties>
+              <!-- binding to an IPv6 address in an `oc cluster up` environment fails -->
+              <java.net.preferIPv4Stack>true</java.net.preferIPv4Stack>
+            </properties>
+          </configuration>
           <executions>
             <execution>
               <goals>
@@ -61,8 +85,15 @@
             </execution>
           </executions>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>${version.maven-war-plugin}</version>
+          <configuration>
+            <failOnMissingWebXml>false</failOnMissingWebXml>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
-
 </project>

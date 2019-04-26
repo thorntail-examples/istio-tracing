@@ -1,139 +1,174 @@
-# Istio Distributed Tracing Mission for Thorntail
+# Istio distributed tracing example for Thorntail
 
 ## Purpose
 
-Showcase Distributed Tracing in Istio with Jaeger in Thorntail applications
+Showcase distributed tracing of Thorntail applications in Istio with Jaeger
 
-## Prerequisites
+## Preparing Istio environment
 
-* Docker installed and running
-* OpenShift and Istio environment up and running with mTLS enabled.
+Here's a short howto for getting Istio up and running with mTLS enabled, based on OpenShift 3.11 on Linux using `istiooc`.
+It assumes Docker is installed and running.
 
-See https://github.com/openshift-istio/istio-docs/blob/master/content/rhoar-workflow.adoc for details about the Launcher workflows and setting up the docker insecure registry required to run the istiooc.
+- Download the latest `istiooc` release:
 
-Here is the sequence showing how to get up and running with the latest OpenShift 3.11 based istiooc release.
+  ```bash
+  cd ~/bin   # should be on PATH
+  wget -O istiooc https://github.com/Maistra/origin/releases/download/v3.11.0%2Bmaistra-0.9.0/istiooc_linux
+  chmod +x istiooc
+  ```
 
-- Download the latest istiooc release, for example:
-```
-mkdir istiooc && cd istiooc
-wget -O oc https://github.com/Maistra/origin/releases/download/v3.11.0%2Bmaistra-0.9.0/istiooc_linux
-chmod +x oc
-export PATH=/path/to/istiooc:$PATH
-```
+  Note that this one is based on Maistra 0.9.0 `openshift-ansible` release: https://github.com/Maistra/openshift-ansible/releases/tag/maistra-0.9.0
 
-Note in this case it is based on Maistra 0.9.0 openshift-ansible release:
-https://github.com/Maistra/openshift-ansible/releases/tag/maistra-0.9.0
+- Start the single-node OpenShift cluster:
 
-- Start the cluster:
-```
-oc cluster up
-```
+  ```bash
+  istiooc cluster up
+  ```
 
-Note this will apply the the istio-operator described here:
-https://github.com/Maistra/openshift-ansible/blob/maistra-0.9.0/istio/Installation.md#installing-the-istio-operator
+  Note this will apply the the istio-operator described here: https://github.com/Maistra/openshift-ansible/blob/maistra-0.10.0/istio/Installation.md#installing-the-istio-operator
 
-- Login as system:admin, create an admin user and relogin as admin:admin
-```
-oc create user admin
-oc adm policy add-cluster-role-to-user cluster-admin admin
-oc login
-```
+- Login as system:admin:
 
-- Apply `anyuid` and `privileged` permissions to the service account of the project you are going to use to test the booster services, by default it will be a `default` account in the project `MyProject`:
+  ```bash
+  oc login -u system:admin
+  ```
 
-```
-oc adm policy add-scc-to-user anyuid system:serviceaccount:myproject:default
-oc adm policy add-scc-to-user privileged system:serviceaccount:myproject:default
-```
+  Note: at this point, you can create a cluster admin user that can log into the console. Run
 
-- Deploy the Istio control plane and the Fabric8 launcher:
+  ```bash
+  oc create user admin
+  oc adm policy add-cluster-role-to-user cluster-admin admin
+  ```
 
-```
-oc create -f istio-installation-full.yaml
-```
+  and use the `admin` username afterwards.
 
-where `istio-installation-full.yaml` should look like this:
+- Apply `anyuid` and `privileged` permissions to the service account of the project you are going to use.
+Typically, it will be the `default` service account in the `myproject` project:
 
-```
-apiVersion: "istio.openshift.com/v1alpha1"
-kind: "Installation"
-metadata:
-  name: "istio-installation"
-  namespace: istio-operator
-spec:
-  deployment_type: openshift
-  istio:
-    authentication: true
-    community: false
-    prefix: registry.access.redhat.com/openshift-istio-tech-preview/ 
-    version: 0.9.0
-  jaeger:
-    prefix: registry.access.redhat.com/distributed-tracing-tech-preview/
-    version: 1.11.0
-    elasticsearch_memory: 1Gi
-  launcher:
-    openshift:
-      user: admin
-      password: admin
-    github:
-      username: YOUR_GIT_ACCOUNT_ID
-      token: YOUR_GIT_ACCOUNT_TOKEN
-```
+  ```bash
+  oc adm policy add-scc-to-user anyuid system:serviceaccount:myproject:default
+  oc adm policy add-scc-to-user privileged system:serviceaccount:myproject:default
+  ```
 
-where the GIT token should have `public_repo`, `read:org`, and `admin:repo_hook` permissions. 
+- Deploy the Istio control plane.
+  If you also want to install the Fabric8 Launcher, edit the `istio-installation.yaml` file.
 
-The more complete version may look like this:
-https://github.com/Maistra/openshift-ansible/blob/maistra-0.9.0/istio/istio-installation-full.yaml
+  ```bash
+  oc apply -f istio-installation.yaml
+  ```
 
-but the one above is sufficient for testing the boosters. Note, setting `istio.authentication` to `true` enables MTLS.
+- Wait for the Istio control plane deployment to finish. Run
 
-- Verify the Istio Control Plane and Launcher deployments:
+  ```bash
+  oc get pods -n istio-system -w
+  ```
 
-https://github.com/Maistra/openshift-ansible/blob/maistra-0.9.0/istio/Installation.md#verifying-the-istio-control-plane
+  or open the OpenShift web console and wait until everything settles down.
+  In the end, running `oc get pods -n istio-system` should show something like this:
 
-Now proceed to testing the booster.
+  ```
+  NAME                                          READY     STATUS      RESTARTS   AGE
+  elasticsearch-0                               1/1       Running     0          1m
+  grafana-74b5796d94-796tc                      1/1       Running     0          1m
+  istio-citadel-5d595fd7d7-w9lqd                1/1       Running     0          2m
+  istio-egressgateway-594684895-tp9w7           1/1       Running     0          2m
+  istio-galley-699f48cb-xbxf4                   1/1       Running     0          2m
+  istio-ingressgateway-568cd96f58-gb2fm         1/1       Running     0          2m
+  istio-pilot-99fc457ff-h59d5                   2/2       Running     0          2m
+  istio-policy-85d8ffdb98-nn8kw                 2/2       Running     3          2m
+  istio-sidecar-injector-5d5bf88c78-c2hks       1/1       Running     0          2m
+  istio-telemetry-5c75d844cf-s76x9              2/2       Running     3          2m
+  jaeger-agent-lbcnv                            1/1       Running     0          1m
+  jaeger-collector-86d57594d5-7lktp             1/1       Running     1          1m
+  jaeger-query-f96b97b75-bm2sw                  1/1       Running     1          1m
+  kiali-59fd54974c-4c9xz                        1/1       Running     0          1m
+  openshift-ansible-istio-installer-job-ddvdr   0/1       Completed   0          4m
+  prometheus-75b849445c-8n8rv                   1/1       Running     0          2m
+  ```
 
-## Launcher Flow Setup
+- Remember the URL of the Istio ingress gateway:
 
-If the Booster is installed through the Launcher and the Continuous Delivery flow, no additional steps are necessary.
+  ```bash
+  ISTIO_INGRESS=$(oc get route istio-ingressgateway -n istio-system -o jsonpath='{.spec.host}')
+  ```
+## Deploy the application
 
-Skip to the _Use Cases_ section.
+### Launcher flow
 
-## Local Source to Image Build (S2I)
+If you installed Fabric8 Launcher, you can deploy the example application using its Continuous Delivery flow.
+In such case, no manual deployment steps are necessary.
 
-### Prepare the Namespace
+Go to the _Verifying use cases_ section.
 
-Create a new namespace/project:
-```
-oc new-project <whatever valid project name you want>
-```
+### Manual build
 
-### Build and Deploy the Application
+#### Prepare the namespace
 
-#### With Source to Image build (S2I)
+Move to your namespace/project:
 
-Run the following commands to apply and execute the OpenShift templates that will configure and deploy the applications:
 ```bash
-find . | grep openshiftio | grep application | xargs -n 1 oc apply -f
-
-oc new-app --template=thorntail-istio-tracing-greeting-service -p SOURCE_REPOSITORY_URL=https://github.com/thorntail-examples/istio-tracing -p SOURCE_REPOSITORY_REF=master -p SOURCE_REPOSITORY_DIR=greeting-service
-oc new-app --template=thorntail-istio-tracing-cute-name-service -p SOURCE_REPOSITORY_URL=https://github.com/thorntail-examples/istio-tracing -p SOURCE_REPOSITORY_REF=master -p SOURCE_REPOSITORY_DIR=cute-name-service
+oc login -u developer
+oc project myproject
 ```
 
-## Use Cases
+This is the project to which the `anyuid` and `privileged` permissions were added during Istio preparation.
+
+#### Build and deploy the application
+
+You can build and deploy the example application using either Fabric8 Maven plugin, or OpenShift templates and S2I.
+
+##### Using Fabric8 Maven plugin
+
+Build and deploy the services directly:
+
+```bash
+cd cute-name-service
+mvn clean fabric8:deploy -Popenshift
+cd ..
+
+cd greeting-service
+mvn clean fabric8:deploy -Popenshift
+cd ..
+```
+
+##### Using S2I
+
+Run the following commands to import and apply the provided OpenShift templates.
+OpenShift will then build and deploy the services:
+
+```bash
+oc apply -f ./cute-name-service/.openshiftio/application.yaml
+oc new-app --template=thorntail-istio-tracing-cute-name
+
+oc apply -f ./greeting-service/.openshiftio/application.yaml
+oc new-app --template=thorntail-istio-tracing-greeting
+```
+
+If you want to use a different repository or a branch, you can pass the corresponding parameters to the `oc new-app` command.
+For example:
+
+```bash
+oc new-app --template=thorntail-istio-tracing-cute-name -p SOURCE_REPOSITORY_URL=https://github.com/thorntail-examples/istio-tracing -p SOURCE_REPOSITORY_REF=master
+```
+
+## Verifying use cases
 
 Any steps issuing `oc` commands require the user to have run `oc login` first and switched to the appropriate project with `oc project <project name>`.
 
 ### Create and view application traces
 
-1. Create a Gateway and Virtual Service in Istio so that we can access the service within the Mesh:
+1. Create a Gateway and Virtual Service in Istio so that we can access the service within the service mesh:
+
+    ```bash
+    oc apply -f istio-gateway.yaml
     ```
-    oc apply -f istio-config/gateway.yaml
+
+1. Retrieve the URL for the Istio ingress gateway route, with the below command, and open it in a web browser.
+
+    ```bash
+    echo http://$ISTIO_INGRESS/thorntail-istio-tracing
     ```
-2. Retrieve the URL for the Istio Ingress Gateway route, with the below command, and open it in a web browser.
-    ```
-    echo http://$(oc get route istio-ingressgateway -o jsonpath='{.spec.host}{"\n"}' -n istio-system)/thorntail-istio-tracing
-    ```
-3. The user will be presented with the web page of the Booster
-4. Click the "Invoke" button. You should see a "cute" hello message appear in the result box.
-5. Follow the instructions in the webpage to access the Jaeger UI to view the application traces.
+
+1. On the example application web page, click the "Invoke" button. You should see a "cute" hello message appear in the result box.
+
+1. Follow the instructions in the webpage to access the Jaeger UI to view the application traces.
