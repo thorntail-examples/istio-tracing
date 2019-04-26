@@ -1,0 +1,23 @@
+spec:
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - livenessProbe:
+          # the usual `httpGet` probe won't work, because the Istio proxy in the sidecar container
+          # will prevent the kubelet from reaching the health endpoint
+          exec:
+            command:
+            - curl
+            - http://localhost:8080/health
+          initialDelaySeconds: 180
+        readinessProbe:
+          # the usual `httpGet` probe won't work, because the Istio proxy in the sidecar container
+          # will prevent the kubelet from reaching the health endpoint
+          exec:
+            command:
+            - curl
+            - http://localhost:8080/health
+          initialDelaySeconds: 10

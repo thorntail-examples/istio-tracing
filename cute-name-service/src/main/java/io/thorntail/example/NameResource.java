@@ -15,19 +15,17 @@
  *  limitations under the License.
  *
  */
-package io.openshift.booster;
+package io.thorntail.example;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
-/**
- * @author Ken Finnigan
- */
 @Path("/")
 public class NameResource {
-
     @GET
     @Path("/name")
     @Produces(MediaType.TEXT_PLAIN)
@@ -36,12 +34,13 @@ public class NameResource {
     }
 
     private String generateName() {
-        int random1 = (int) Math.floor(Math.random() * ADJECTIVES.length);
-        int random2 = (int) Math.floor(Math.random() * NOUNS.length);
+        int randomAdjective = (int) Math.floor(Math.random() * ADJECTIVES.length);
+        int randomNoun = (int) Math.floor(Math.random() * NOUNS.length);
 
-        String noun = NOUNS[random2];
+        String noun = NOUNS[randomNoun];
+        noun = Character.toUpperCase(noun.charAt(0)) + noun.substring(1);
 
-        return ADJECTIVES[random1] + " " + Character.toUpperCase(noun.charAt(0)) + noun.substring(1);
+        return ADJECTIVES[randomAdjective] + " " + noun;
     }
 
     private static final String[] ADJECTIVES = {
