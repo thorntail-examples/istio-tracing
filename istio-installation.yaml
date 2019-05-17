@@ -1,29 +1,45 @@
-apiVersion: istio.openshift.com/v1alpha1
-kind: Installation
+apiVersion: istio.openshift.com/v1alpha3
+kind: ControlPlane
 metadata:
   name: istio-installation
-  namespace: istio-operator
+  namespace: istio-system
 spec:
-  deployment_type: openshift
   istio:
-    authentication: true # enable mTLS
-    community: false
-    prefix: registry.access.redhat.com/openshift-istio-tech-preview/
-    version: 0.9.0
-  jaeger:
-    prefix: registry.access.redhat.com/distributed-tracing-tech-preview/
-    version: 1.11.0
-    elasticsearch_memory: 1Gi
-  kiali:
-    username: admin
-    password: admin
-    prefix: registry.access.redhat.com/openshift-istio-tech-preview/
-    version: 0.15.0
-#  launcher:
-#    openshift:
-#      user: developer
-#      password: developer
-#    github:
-#      username: YOUR_GITHUB_USERNAME
-#       # the token should have `public_repo`, `read:org`, and `admin:repo_hook` permissions
-#      token: YOUR_GITHUB_TOKEN
+    global:
+      controlPlaneSecurityEnabled: true
+      mtls:
+        enabled: true
+      proxy:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 128Mi
+    gateways:
+      istio-egressgateway:
+        autoscaleEnabled: false
+      istio-ingressgateway:
+        autoscaleEnabled: false
+        ior_enabled: false
+    mixer:
+      enabled: true
+      policy:
+        autoscaleEnabled: false
+      telemetry:
+        autoscaleEnabled: false
+        resources:
+          requests:
+            cpu: 100m
+            memory: 1G
+          limits:
+            cpu: 500m
+            memory: 4G
+    pilot:
+      autoscaleEnabled: false
+      traceSampling: 100.0
+    kiali:
+      enabled: true
+    tracing:
+      enabled: true
