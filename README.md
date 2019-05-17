@@ -1,59 +1,76 @@
 # Istio distributed tracing example for Thorntail
 
-## Purpose
-
-Showcase distributed tracing of Thorntail applications in Istio with Jaeger
+This example demonstrates distributed tracing of Thorntail applications in Istio with Jaeger.
 
 ## Preparing Istio environment
 
-Here's a short howto for getting Istio up and running with mTLS enabled, based on OpenShift 3.11 on Linux using `istiooc`.
-It assumes Docker is installed and running.
+Here's a short howto for getting Istio up and running with mTLS enabled, based on Minishift and Maistra 0.10.
+It assumes that Minishift version 1.33 is installed and works correctly.
+It also assumes that you can run the `oc` binary.
 
-- Download the latest `istiooc` release:
+- Verify Minishift and `oc`, and make sure there's no Minishift profile named `istio`:
 
   ```bash
-  cd ~/bin   # should be on PATH
-  wget -O istiooc https://github.com/Maistra/origin/releases/download/v3.11.0%2Bmaistra-0.9.0/istiooc_linux
-  chmod +x istiooc
+  oc version
+  minishift version
+  minishift profile list
   ```
 
-  Note that this one is based on Maistra 0.9.0 `openshift-ansible` release: https://github.com/Maistra/openshift-ansible/releases/tag/maistra-0.9.0
-
-- Start the single-node OpenShift cluster:
+- Create an extra Minishift profile just for Istio and start the VM:
 
   ```bash
-  istiooc cluster up
+  minishift profile set istio
+  minishift config set cpus 4
+  minishift config set memory 8GB
+  minishift config set disk-size 50g
+  minishift config set iso-url centos
+  minishift config set vm-driver virtualbox
+  minishift addon enable admin-user
+  minishift addon enable admissions-webhook
+  minishift start
   ```
 
-  Note this will apply the the istio-operator described here: https://github.com/Maistra/openshift-ansible/blob/maistra-0.10.0/istio/Installation.md#installing-the-istio-operator
-
-- Login as system:admin:
+- Configure the Minishift virtual machine so that Elasticsearch can run:
 
   ```bash
-  oc login -u system:admin
+  minishift ssh -- sudo sysctl vm.max_map_count=262144
   ```
 
-  Note: at this point, you can create a cluster admin user that can log into the console. Run
+- Login as an admin:
 
   ```bash
-  oc create user admin
-  oc adm policy add-cluster-role-to-user cluster-admin admin
+  oc login -u admin
   ```
 
-  and use the `admin` username afterwards.
+  You can use an arbitrary password.
+  Note that you can also use the `admin` username to login to the OpenShift web console.
+  URL of the web console is printed near the end of the `minishift start` command output. 
 
-- Apply `anyuid` and `privileged` permissions to the service account of the project you are going to use.
-Typically, it will be the `default` service account in the `myproject` project:
+- Install the Istio operator:
 
   ```bash
-  oc adm policy add-scc-to-user anyuid system:serviceaccount:myproject:default
-  oc adm policy add-scc-to-user privileged system:serviceaccount:myproject:default
+  oc new-project istio-operator
+  oc apply -n istio-operator -f https://raw.githubusercontent.com/Maistra/istio-operator/maistra-0.10.0/deploy/maistra-operator.yaml
+  ```
+
+- Wait for the Istio operator deployment to finish. Run
+
+  ```bash
+  oc get pods -n istio-operator -w
+  ```
+
+  or open the `istio-operator` project in the OpenShift web console and wait until everything settles down.
+  In the end, running `oc get pods -n istio-operator` should show something like this:
+
+  ```
+  NAME                              READY     STATUS    RESTARTS   AGE
+  istio-operator-6bbff5c77b-nkms6   1/1       Running   0          1m
   ```
 
 - Deploy the Istio control plane.
-  If you also want to install the Fabric8 Launcher, edit the `istio-installation.yaml` file.
 
   ```bash
+  oc new-project istio-system
   oc apply -f istio-installation.yaml
   ```
 
@@ -63,27 +80,34 @@ Typically, it will be the `default` service account in the `myproject` project:
   oc get pods -n istio-system -w
   ```
 
-  or open the OpenShift web console and wait until everything settles down.
+  or open the `istio-system` project in the OpenShift web console and wait until everything settles down.
   In the end, running `oc get pods -n istio-system` should show something like this:
 
   ```
-  NAME                                          READY     STATUS      RESTARTS   AGE
-  elasticsearch-0                               1/1       Running     0          1m
-  grafana-74b5796d94-796tc                      1/1       Running     0          1m
-  istio-citadel-5d595fd7d7-w9lqd                1/1       Running     0          2m
-  istio-egressgateway-594684895-tp9w7           1/1       Running     0          2m
-  istio-galley-699f48cb-xbxf4                   1/1       Running     0          2m
-  istio-ingressgateway-568cd96f58-gb2fm         1/1       Running     0          2m
-  istio-pilot-99fc457ff-h59d5                   2/2       Running     0          2m
-  istio-policy-85d8ffdb98-nn8kw                 2/2       Running     3          2m
-  istio-sidecar-injector-5d5bf88c78-c2hks       1/1       Running     0          2m
-  istio-telemetry-5c75d844cf-s76x9              2/2       Running     3          2m
-  jaeger-agent-lbcnv                            1/1       Running     0          1m
-  jaeger-collector-86d57594d5-7lktp             1/1       Running     1          1m
-  jaeger-query-f96b97b75-bm2sw                  1/1       Running     1          1m
-  kiali-59fd54974c-4c9xz                        1/1       Running     0          1m
-  openshift-ansible-istio-installer-job-ddvdr   0/1       Completed   0          4m
-  prometheus-75b849445c-8n8rv                   1/1       Running     0          2m
+  NAME                                      READY     STATUS    RESTARTS   AGE
+  elasticsearch-0                           1/1       Running   0          7m
+  grafana-6c5dfdf5bd-w2lfp                  1/1       Running   0          8m
+  istio-citadel-7fcc8975c7-64w7d            1/1       Running   0          12m
+  istio-egressgateway-68cb55b699-n7png      1/1       Running   0          8m
+  istio-galley-59cb8d654d-cw494             1/1       Running   0          12m
+  istio-ingressgateway-6568f7f6f4-f57ph     1/1       Running   0          8m
+  istio-pilot-9965d7d9d-r4lbc               2/2       Running   0          10m
+  istio-policy-8fdd8b6f8-dlvbt              2/2       Running   0          10m
+  istio-sidecar-injector-6d6cbf8877-zc2qz   1/1       Running   0          8m
+  istio-telemetry-5d84ffbf8f-sx2zg          2/2       Running   0          10m
+  jaeger-agent-d7r2c                        1/1       Running   0          7m
+  jaeger-collector-598b9779b9-df64j         1/1       Running   6          7m
+  jaeger-query-6d9864755f-wtwz8             1/1       Running   6          7m
+  kiali-85c9557b47-gblv5                    1/1       Running   0          3m
+  prometheus-5dfcf8dcf9-clxg8               1/1       Running   0          11m
+  ```
+
+- Apply `anyuid` and `privileged` permissions to the service account of the project you are going to use.
+Typically, it will be the `default` service account in the `myproject` project:
+
+  ```bash
+  oc adm policy add-scc-to-user anyuid system:serviceaccount:myproject:default
+  oc adm policy add-scc-to-user privileged system:serviceaccount:myproject:default
   ```
 
 - Remember the URL of the Istio ingress gateway:
@@ -91,18 +115,8 @@ Typically, it will be the `default` service account in the `myproject` project:
   ```bash
   ISTIO_INGRESS=$(oc get route istio-ingressgateway -n istio-system -o jsonpath='{.spec.host}')
   ```
-## Deploy the application
 
-### Launcher flow
-
-If you installed Fabric8 Launcher, you can deploy the example application using its Continuous Delivery flow.
-In such case, no manual deployment steps are necessary.
-
-Go to the _Verifying use cases_ section.
-
-### Manual build
-
-#### Prepare the namespace
+## Deploying and testing the application
 
 Move to your namespace/project:
 
@@ -113,11 +127,11 @@ oc project myproject
 
 This is the project to which the `anyuid` and `privileged` permissions were added during Istio preparation.
 
-#### Build and deploy the application
+### Build and deploy the application
 
 You can build and deploy the example application using either Fabric8 Maven plugin, or OpenShift templates and S2I.
 
-##### Using Fabric8 Maven plugin
+#### Using Fabric8 Maven plugin
 
 Build and deploy the services directly:
 
@@ -131,7 +145,7 @@ mvn clean fabric8:deploy -Popenshift
 cd ..
 ```
 
-##### Using S2I
+#### Using S2I
 
 Run the following commands to import and apply the provided OpenShift templates.
 OpenShift will then build and deploy the services:
@@ -151,11 +165,7 @@ For example:
 oc new-app --template=thorntail-istio-tracing-cute-name -p SOURCE_REPOSITORY_URL=https://github.com/thorntail-examples/istio-tracing -p SOURCE_REPOSITORY_REF=master
 ```
 
-## Verifying use cases
-
-Any steps issuing `oc` commands require the user to have run `oc login` first and switched to the appropriate project with `oc project <project name>`.
-
-### Create and view application traces
+### Use the application and view the traces
 
 1. Create a Gateway and Virtual Service in Istio so that we can access the service within the service mesh:
 
@@ -163,12 +173,25 @@ Any steps issuing `oc` commands require the user to have run `oc login` first an
     oc apply -f istio-gateway.yaml
     ```
 
-1. Retrieve the URL for the Istio ingress gateway route, with the below command, and open it in a web browser.
+1. Retrieve the URL for the Istio ingress gateway route and open it in a web browser:
 
     ```bash
-    echo http://$ISTIO_INGRESS/thorntail-istio-tracing
+    xdg-open http://$ISTIO_INGRESS/thorntail-istio-tracing
     ```
 
 1. On the example application web page, click the "Invoke" button. You should see a "cute" hello message appear in the result box.
 
 1. Follow the instructions in the webpage to access the Jaeger UI to view the application traces.
+
+## Cleaning Istio environment
+
+We created an extra Minishift profile, which means it's an extra virtual machine.
+That is, it doesn't interfere with your normal Minishift environment.
+Cleaning up is very simple, just remove the new profile:
+
+```bash
+minishift stop
+minishift profile delete istio --force
+```
+
+Minishift will switch back to the default profile automatically.
