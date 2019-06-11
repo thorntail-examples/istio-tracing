@@ -1,11 +1,16 @@
-apiVersion: istio.openshift.com/v1alpha3
-kind: ControlPlane
+apiVersion: maistra.io/v1
+kind: ServiceMeshControlPlane
 metadata:
   name: istio-installation
   namespace: istio-system
 spec:
   istio:
     global:
+      # the Minishift VM runs CentOS 7, so we can't use the default init container,
+      # as that is based on Red Hat Universal Base Image 8 (UBI 8, subset of RHEL 8)
+      # this should be temporary, Maistra should be able to figure this out automatically
+      proxy_init:
+        image: maistra/proxy-init-centos7:0.11.0
       controlPlaneSecurityEnabled: true
       mtls:
         enabled: true
