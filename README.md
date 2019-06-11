@@ -50,7 +50,7 @@ It also assumes that you can run the `oc` binary.
 
   ```bash
   oc new-project istio-operator
-  oc apply -n istio-operator -f https://raw.githubusercontent.com/Maistra/istio-operator/maistra-0.10.0/deploy/maistra-operator.yaml
+  oc apply -n istio-operator -f https://raw.githubusercontent.com/Maistra/istio-operator/maistra-0.11.0/deploy/maistra-operator.yaml
   ```
 
 - Wait for the Istio operator deployment to finish. Run
