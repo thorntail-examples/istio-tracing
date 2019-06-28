@@ -102,18 +102,20 @@ It also assumes that you can run the `oc` binary.
   prometheus-5dfcf8dcf9-clxg8               1/1       Running   0          11m
   ```
 
+- Add `view` role in the `istio-system` project to all authenticated users.
+  This will let them discover URLs of Istio ingress or Jaeger UI.
+  It is also a prerequisite for running automated tests (see below).
+
+  ```bash
+  oc adm policy add-role-to-group view system:authenticated
+  ```
+
 - Apply `anyuid` and `privileged` permissions to the service account of the project you are going to use.
-Typically, it will be the `default` service account in the `myproject` project:
+  Typically, it will be the `default` service account in the `myproject` project:
 
   ```bash
   oc adm policy add-scc-to-user anyuid system:serviceaccount:myproject:default
   oc adm policy add-scc-to-user privileged system:serviceaccount:myproject:default
-  ```
-
-- Remember the URL of the Istio ingress gateway:
-
-  ```bash
-  ISTIO_INGRESS=$(oc get route istio-ingressgateway -n istio-system -o jsonpath='{.spec.host}')
   ```
 
 ## Deploying and testing the application
@@ -126,6 +128,9 @@ oc project myproject
 ```
 
 This is the project to which the `anyuid` and `privileged` permissions were added during Istio preparation.
+
+> At this point, it is possible to run automated tests: `mvn clean verify -Popenshift,openshift-it`.
+> This command will build and deploy both services, create the Istio gateway, run a test, and finally clean up.
 
 ### Build and deploy the application
 
@@ -176,7 +181,7 @@ oc new-app --template=thorntail-istio-tracing-cute-name -p SOURCE_REPOSITORY_URL
 1. Retrieve the URL for the Istio ingress gateway route and open it in a web browser:
 
     ```bash
-    xdg-open http://$ISTIO_INGRESS/thorntail-istio-tracing
+    xdg-open http://$(oc get route istio-ingressgateway -n istio-system -o jsonpath='{.spec.host}')/thorntail-istio-tracing
     ```
 
 1. On the example application web page, click the "Invoke" button. You should see a "cute" hello message appear in the result box.
