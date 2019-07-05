@@ -103,7 +103,7 @@
       }
 
       $("#jaeger-ui").html(function() {
-        var jaegerUrl = window.location.origin.replace("http://", "https://").replace("istio-ingressgateway", "tracing");
+        var jaegerUrl = window.location.origin.replace("http://", "https://").replace("istio-ingressgateway", "jaeger-query");
         return "<h4>The traces can be viewed by navigating to the <a href='" + jaegerUrl + "'>Jaeger UI</a>.</h4>"
       });
     });
