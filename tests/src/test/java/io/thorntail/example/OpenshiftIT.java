@@ -49,7 +49,8 @@ public class OpenshiftIT {
 
     @Test
     public void tracingTest() {
-        long startTime = TimeUnit.MILLISECONDS.toMicros(System.currentTimeMillis());
+        long startTime = TimeUnit.MILLISECONDS.toMicros(System.currentTimeMillis())
+                - TimeUnit.SECONDS.toMicros(1); // tolerate 1 sec of skew between localhost and Minishift VM
 
         given()
                 .baseUri(ingressGateway)
@@ -57,7 +58,7 @@ public class OpenshiftIT {
                 .get("/api/greeting")
         .then()
                 .statusCode(200)
-                .content("content", startsWith("Hello"));
+                .body("content", startsWith("Hello"));
 
         await().atMost(20, TimeUnit.SECONDS).untilAsserted(() -> {
             Map<String, Map> processes =

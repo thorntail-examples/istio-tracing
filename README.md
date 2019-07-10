@@ -33,7 +33,7 @@ It also assumes that you can run the `oc` binary.
 - Configure the Minishift virtual machine so that Elasticsearch can run:
 
   ```bash
-  minishift ssh -- sudo sysctl vm.max_map_count=262144
+  minishift ssh -- "echo 'vm.max_map_count=262144' | sudo tee -a /etc/sysctl.conf && sudo sysctl -p"
   ```
 
 - Login as an admin:
