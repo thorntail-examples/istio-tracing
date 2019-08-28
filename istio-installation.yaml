@@ -6,11 +6,12 @@ metadata:
 spec:
   istio:
     global:
+      multitenant: false
       # the Minishift VM runs CentOS 7, so we can't use the default init container,
       # as that is based on Red Hat Universal Base Image 8 (UBI 8, subset of RHEL 8)
       # this should be temporary, Maistra should be able to figure this out automatically
       proxy_init:
-        image: maistra/proxy-init-centos7:0.11.0
+        image: proxy-init-centos7
       controlPlaneSecurityEnabled: true
       mtls:
         enabled: true
@@ -45,6 +46,8 @@ spec:
       autoscaleEnabled: false
       traceSampling: 100.0
     kiali:
-      enabled: true
+      enabled: false
     tracing:
       enabled: true
+      jaeger:
+        tag: 1.13.1
