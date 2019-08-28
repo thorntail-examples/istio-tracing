@@ -4,8 +4,8 @@ This example demonstrates distributed tracing of Thorntail applications in Istio
 
 ## Preparing Istio environment
 
-Here's a short howto for getting Istio up and running with mTLS enabled, based on Minishift and Maistra 0.11.
-It assumes that Minishift version 1.33 is installed and works correctly.
+Here's a short howto for getting Istio up and running with mTLS enabled, based on Minishift and Maistra 0.12.
+It assumes that Minishift version 1.34 is installed and works correctly.
 It also assumes that you can run the `oc` binary.
 
 - Verify Minishift and `oc`, and make sure there's no Minishift profile named `istio`:
@@ -46,11 +46,37 @@ It also assumes that you can run the `oc` binary.
   Note that you can also use the `admin` username to login to the OpenShift web console.
   URL of the web console is printed near the end of the `minishift start` command output. 
 
+- Install the Jaeger operator:
+
+  ```bash
+  oc new-project observability
+  oc create -n observability -f https://raw.githubusercontent.com/jaegertracing/jaeger-operator/v1.13.1/deploy/crds/jaegertracing_v1_jaeger_crd.yaml
+oc create -n observability -f https://raw.githubusercontent.com/jaegertracing/jaeger-operator/v1.13.1/deploy/service_account.yaml
+oc create -n observability -f https://raw.githubusercontent.com/jaegertracing/jaeger-operator/v1.13.1/deploy/role.yaml
+oc create -n observability -f https://raw.githubusercontent.com/jaegertracing/jaeger-operator/v1.13.1/deploy/role_binding.yaml
+oc create -n observability -f https://raw.githubusercontent.com/jaegertracing/jaeger-operator/v1.13.1/deploy/operator.yaml
+  ```
+
+- Wait for the Jaeger operator deployment to finish. Run
+
+  ```bash
+  oc get pods -n observability -w
+  ```
+
+  or open the `observability` project in the OpenShift web console and wait until everything settles down.
+  In the end, running `oc get pods -n observability` should show something like this:
+
+  ```
+  NAME                              READY     STATUS    RESTARTS   AGE
+  jaeger-operator-5bcd7ff5df-59msz   1/1       Running   0          1m
+  ```
+
+
 - Install the Istio operator:
 
   ```bash
   oc new-project istio-operator
-  oc apply -n istio-operator -f https://raw.githubusercontent.com/Maistra/istio-operator/maistra-0.11.0/deploy/maistra-operator.yaml
+  oc apply -n istio-operator -f https://raw.githubusercontent.com/Maistra/istio-operator/maistra-0.12.0/deploy/maistra-operator.yaml
   ```
 
 - Wait for the Istio operator deployment to finish. Run
@@ -98,7 +124,6 @@ It also assumes that you can run the `oc` binary.
   jaeger-agent-d7r2c                        1/1       Running   0          7m
   jaeger-collector-598b9779b9-df64j         1/1       Running   6          7m
   jaeger-query-6d9864755f-wtwz8             1/1       Running   6          7m
-  kiali-85c9557b47-gblv5                    1/1       Running   0          3m
   prometheus-5dfcf8dcf9-clxg8               1/1       Running   0          11m
   ```
 
