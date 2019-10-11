@@ -1,4 +1,4 @@
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
   name: thorntail-istio-tracing-cute-name
@@ -34,12 +34,12 @@ parameters:
   displayName: Maven Mirror URL
   required: false
 objects:
-- apiVersion: v1
+- apiVersion: image.openshift.io/v1
   kind: ImageStream
   metadata:
     name: thorntail-istio-tracing-cute-name
   spec: {}
-- apiVersion: v1
+- apiVersion: image.openshift.io/v1
   kind: ImageStream
   metadata:
     name: runtime-thorntail-istio-tracing-cute-name
@@ -49,7 +49,7 @@ objects:
       from:
         kind: DockerImage
         name: registry.access.redhat.com/redhat-openjdk-18/openjdk18-openshift
-- apiVersion: v1
+- apiVersion: build.openshift.io/v1
   kind: BuildConfig
   metadata:
     name: thorntail-istio-tracing-cute-name
