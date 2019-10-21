@@ -37,7 +37,7 @@ import static org.hamcrest.Matchers.startsWith;
 @IstioResource("classpath:istio-gateway.yaml")
 public class OpenshiftIT {
     private static final String ISTIO_NAMESPACE = "istio-system";
-    private static final String JAEGER_QUERY_NAME = "jaeger-query";
+    private static final String JAEGER_QUERY_NAME = "tracing";
     private static final String ISTIO_INGRESS_GATEWAY_NAME = "istio-ingressgateway";
 
     @RouteURL(value = JAEGER_QUERY_NAME, namespace = ISTIO_NAMESPACE)
