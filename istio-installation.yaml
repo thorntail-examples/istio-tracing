@@ -6,12 +6,6 @@ metadata:
 spec:
   istio:
     global:
-      multitenant: false
-      # the Minishift VM runs CentOS 7, so we can't use the default init container,
-      # as that is based on Red Hat Universal Base Image 8 (UBI 8, subset of RHEL 8)
-      # this should be temporary, Maistra should be able to figure this out automatically
-      proxy_init:
-        image: proxy-init-centos7
       controlPlaneSecurityEnabled: true
       mtls:
         enabled: true
@@ -46,8 +40,17 @@ spec:
       autoscaleEnabled: false
       traceSampling: 100.0
     kiali:
-      enabled: false
+      enabled: true
     tracing:
       enabled: true
       jaeger:
         tag: 1.13.1
+        template: all-in-one # doesn't need Elasticsearch
+---
+apiVersion: maistra.io/v1
+kind: ServiceMeshMemberRoll
+metadata:
+  name: default
+spec:
+  members:
+  - myproject

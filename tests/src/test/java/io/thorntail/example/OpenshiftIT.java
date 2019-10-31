@@ -37,11 +37,11 @@ import static org.hamcrest.Matchers.startsWith;
 @IstioResource("classpath:istio-gateway.yaml")
 public class OpenshiftIT {
     private static final String ISTIO_NAMESPACE = "istio-system";
-    private static final String JAEGER_QUERY_NAME = "tracing";
+    private static final String JAEGER_NAME = "jaeger";
     private static final String ISTIO_INGRESS_GATEWAY_NAME = "istio-ingressgateway";
 
-    @RouteURL(value = JAEGER_QUERY_NAME, namespace = ISTIO_NAMESPACE)
-    private String jaegerQuery;
+    @RouteURL(value = JAEGER_NAME, namespace = ISTIO_NAMESPACE)
+    private String jaeger;
 
     @RouteURL(value = ISTIO_INGRESS_GATEWAY_NAME, path = "/thorntail-istio-tracing", namespace = ISTIO_NAMESPACE)
     @AwaitRoute
@@ -63,7 +63,7 @@ public class OpenshiftIT {
         await().atMost(20, TimeUnit.SECONDS).untilAsserted(() -> {
             Map<String, Map> processes =
                     given()
-                            .baseUri(jaegerQuery)
+                            .baseUri(jaeger)
                             .relaxedHTTPSValidation()
                     .when()
                             .param("service", ISTIO_INGRESS_GATEWAY_NAME)

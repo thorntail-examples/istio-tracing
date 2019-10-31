@@ -4,8 +4,8 @@ This example demonstrates distributed tracing of Thorntail applications in Istio
 
 ## Preparing Istio environment
 
-Here's a short howto for getting Istio up and running with mTLS enabled, based on Minishift and Maistra 0.12.
-It assumes that Minishift version 1.34 is installed and works correctly.
+Here's a short howto for getting Istio up and running with mTLS enabled, based on Minishift and Maistra 1.0.
+It assumes that Minishift version 1.34.1 is installed and works correctly.
 It also assumes that you can run the `oc` binary.
 
 - Verify Minishift and `oc`, and make sure there's no Minishift profile named `istio`:
@@ -30,20 +30,13 @@ It also assumes that you can run the `oc` binary.
   minishift start
   ```
 
-- Configure the Minishift virtual machine so that Elasticsearch can run:
-
-  ```bash
-  minishift ssh -- "echo 'vm.max_map_count=262144' | sudo tee -a /etc/sysctl.conf && sudo sysctl -p"
-  ```
-
 - Login as an admin:
 
   ```bash
-  oc login -u admin
+  oc login -u system:admin
   ```
 
-  You can use an arbitrary password.
-  Note that you can also use the `admin` username to login to the OpenShift web console.
+  Note that if you want to use the OpenShift web console, you can use the `admin` username with an arbitrary password.
   URL of the web console is printed near the end of the `minishift start` command output. 
 
 - Install the Jaeger operator:
@@ -51,10 +44,10 @@ It also assumes that you can run the `oc` binary.
   ```bash
   oc new-project observability
   oc create -n observability -f https://raw.githubusercontent.com/jaegertracing/jaeger-operator/v1.13.1/deploy/crds/jaegertracing_v1_jaeger_crd.yaml
-oc create -n observability -f https://raw.githubusercontent.com/jaegertracing/jaeger-operator/v1.13.1/deploy/service_account.yaml
-oc create -n observability -f https://raw.githubusercontent.com/jaegertracing/jaeger-operator/v1.13.1/deploy/role.yaml
-oc create -n observability -f https://raw.githubusercontent.com/jaegertracing/jaeger-operator/v1.13.1/deploy/role_binding.yaml
-oc create -n observability -f https://raw.githubusercontent.com/jaegertracing/jaeger-operator/v1.13.1/deploy/operator.yaml
+  oc create -n observability -f https://raw.githubusercontent.com/jaegertracing/jaeger-operator/v1.13.1/deploy/service_account.yaml
+  oc create -n observability -f https://raw.githubusercontent.com/jaegertracing/jaeger-operator/v1.13.1/deploy/role.yaml
+  oc create -n observability -f https://raw.githubusercontent.com/jaegertracing/jaeger-operator/v1.13.1/deploy/role_binding.yaml
+  oc create -n observability -f https://raw.githubusercontent.com/jaegertracing/jaeger-operator/v1.13.1/deploy/operator.yaml
   ```
 
 - Wait for the Jaeger operator deployment to finish. Run
@@ -71,12 +64,19 @@ oc create -n observability -f https://raw.githubusercontent.com/jaegertracing/ja
   jaeger-operator-5bcd7ff5df-59msz   1/1       Running   0          1m
   ```
 
+- Install the Kiali operator:
+
+  ```bash
+  bash <(curl -L https://git.io/getLatestKialiOperator) --operator-watch-namespace '**' --accessible-namespaces '**' --operator-install-kiali false
+  ```
+
+  The install script will wait for the operator deployment to finish.
 
 - Install the Istio operator:
 
   ```bash
   oc new-project istio-operator
-  oc apply -n istio-operator -f https://raw.githubusercontent.com/Maistra/istio-operator/maistra-0.12.0/deploy/maistra-operator.yaml
+  oc apply -n istio-operator -f https://raw.githubusercontent.com/Maistra/istio-operator/maistra-1.0.0/deploy/maistra-operator.yaml
   ```
 
 - Wait for the Istio operator deployment to finish. Run
@@ -100,6 +100,9 @@ oc create -n observability -f https://raw.githubusercontent.com/jaegertracing/ja
   oc apply -f istio-installation.yaml
   ```
 
+  Notice that the `ServiceMeshMemberRoll` resource defined in `istio-installation.yaml` needs to list all the projects that will be used.
+  If you deploy the file without changes, it will only include the `myproject` project.
+
 - Wait for the Istio control plane deployment to finish. Run
 
   ```bash
@@ -111,21 +114,27 @@ oc create -n observability -f https://raw.githubusercontent.com/jaegertracing/ja
 
   ```
   NAME                                      READY     STATUS    RESTARTS   AGE
-  elasticsearch-0                           1/1       Running   0          7m
-  grafana-6c5dfdf5bd-w2lfp                  1/1       Running   0          8m
-  istio-citadel-7fcc8975c7-64w7d            1/1       Running   0          12m
-  istio-egressgateway-68cb55b699-n7png      1/1       Running   0          8m
-  istio-galley-59cb8d654d-cw494             1/1       Running   0          12m
-  istio-ingressgateway-6568f7f6f4-f57ph     1/1       Running   0          8m
-  istio-pilot-9965d7d9d-r4lbc               2/2       Running   0          10m
-  istio-policy-8fdd8b6f8-dlvbt              2/2       Running   0          10m
-  istio-sidecar-injector-6d6cbf8877-zc2qz   1/1       Running   0          8m
-  istio-telemetry-5d84ffbf8f-sx2zg          2/2       Running   0          10m
-  jaeger-agent-d7r2c                        1/1       Running   0          7m
-  jaeger-collector-598b9779b9-df64j         1/1       Running   6          7m
-  jaeger-query-6d9864755f-wtwz8             1/1       Running   6          7m
-  prometheus-5dfcf8dcf9-clxg8               1/1       Running   0          11m
+  grafana-f4dd88dd5-98hnh                   2/2       Running   0          6m
+  istio-citadel-9c7f79d9c-7mkjk             1/1       Running   0          10m
+  istio-egressgateway-5444c946f8-sdq89      1/1       Running   0          6m
+  istio-galley-6494c7f649-7zwgh             1/1       Running   0          8m
+  istio-ingressgateway-58bb47b869-zlc59     1/1       Running   0          6m
+  istio-pilot-769846cc7-mr9gc               2/2       Running   0          7m
+  istio-policy-8694bcd49c-trg5z             2/2       Running   0          7m
+  istio-sidecar-injector-7f888f5d68-zc7xm   1/1       Running   0          6m
+  istio-telemetry-557d5f9c5c-gfkqh          2/2       Running   0          7m
+  jaeger-5c999c56f8-kkj9s                   2/2       Running   0          8m
+  kiali-cd688499c-77dsf                     1/1       Running   0          4m
+  prometheus-8d957b748-frxwp                2/2       Running   0          10m
   ```
+
+- Reconfigure Jaeger to allow insecure access:
+
+  ```bash
+  oc patch jaeger jaeger --patch '{"spec": {"ingress": {"security": "none"}}}' -n istio-system --type merge
+  ```
+
+  This is at the very least required for the automated test present in this repository.
 
 - Add `view` role in the `istio-system` project to all authenticated users.
   This will let them discover URLs of Istio ingress or Jaeger UI.
@@ -152,7 +161,7 @@ oc login -u developer
 oc project myproject
 ```
 
-This is the project to which the `anyuid` and `privileged` permissions were added during Istio preparation.
+This is the project which is listed in the `ServiceMeshMemberRoll` and to which the `anyuid` and `privileged` permissions were added during Istio preparation.
 
 > At this point, it is possible to run automated tests: `mvn clean verify -Popenshift,openshift-it`.
 > This command will build and deploy both services, create the Istio gateway, run a test, and finally clean up.
