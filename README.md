@@ -67,7 +67,7 @@ It also assumes that you can run the `oc` binary.
 - Install the Kiali operator:
 
   ```bash
-  bash <(curl -L https://git.io/getLatestKialiOperator) --operator-watch-namespace '**' --accessible-namespaces '**' --operator-install-kiali false
+  bash <(curl -L https://kiali.io/getLatestKialiOperator) --operator-watch-namespace '**' --accessible-namespaces '**' --operator-install-kiali false
   ```
 
   The install script will wait for the operator deployment to finish.
