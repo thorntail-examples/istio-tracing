@@ -23,7 +23,7 @@
   <parent>
     <groupId>io.thorntail.example</groupId>
     <artifactId>thorntail-istio-tracing-parent</artifactId>
-    <version>8</version>
+    <version>9-SNAPSHOT</version>
   </parent>
 
   <artifactId>thorntail-istio-tracing-cute-name</artifactId>
