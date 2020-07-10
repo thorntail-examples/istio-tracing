@@ -175,13 +175,7 @@ You can build and deploy the example application using either Fabric8 Maven plug
 Build and deploy the services directly:
 
 ```bash
-cd cute-name-service
 mvn clean fabric8:deploy -Popenshift
-cd ..
-
-cd greeting-service
-mvn clean fabric8:deploy -Popenshift
-cd ..
 ```
 
 #### Using S2I
