@@ -22,7 +22,7 @@
 
   <groupId>io.thorntail.example</groupId>
   <artifactId>thorntail-istio-tracing-parent</artifactId>
-  <version>9</version>
+  <version>10-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Thorntail - Istio - Distributed Tracing</name>
