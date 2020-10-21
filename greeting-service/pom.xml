@@ -69,8 +69,8 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric8-maven-plugin</artifactId>
+            <groupId>org.eclipse.jkube</groupId>
+            <artifactId>openshift-maven-plugin</artifactId>
             <executions>
               <execution>
                 <goals>
@@ -81,7 +81,13 @@
             </executions>
             <configuration>
               <!-- the app should be accessed through Istio ingress, not through its own route -->
-              <generateRoute>false</generateRoute>
+              <enricher>
+                <config>
+                  <jkube-openshift-route>
+                    <generateRoute>false</generateRoute>
+                  </jkube-openshift-route>
+                </config>
+              </enricher>
               <generator>
                 <includes>
                   <include>thorntail-v2</include>
