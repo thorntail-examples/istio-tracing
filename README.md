@@ -168,14 +168,14 @@ This is the project which is listed in the `ServiceMeshMemberRoll` and to which 
 
 ### Build and deploy the application
 
-You can build and deploy the example application using either Fabric8 Maven plugin, or OpenShift templates and S2I.
+You can build and deploy the example application using either JKube OpenShift Maven plugin, or OpenShift templates and S2I.
 
-#### Using Fabric8 Maven plugin
+#### Using JKube OpenShift Maven plugin
 
 Build and deploy the services directly:
 
 ```bash
-mvn clean fabric8:deploy -Popenshift
+mvn clean oc:deploy -Popenshift
 ```
 
 #### Using S2I

@@ -16,8 +16,7 @@
   ~  limitations under the License.
   ~
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -69,8 +68,8 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric8-maven-plugin</artifactId>
+            <groupId>org.eclipse.jkube</groupId>
+            <artifactId>openshift-maven-plugin</artifactId>
             <executions>
               <execution>
                 <goals>
@@ -80,8 +79,14 @@
               </execution>
             </executions>
             <configuration>
-              <!-- the app should be accessed through Istio ingress, not through its own route -->
-              <generateRoute>false</generateRoute>
+              <enricher>
+                <config>
+                  <jkube-openshift-route>
+                    <!-- the app should be accessed through Istio ingress, not through its own route -->
+                    <generateRoute>false</generateRoute>
+                  </jkube-openshift-route>
+                </config>
+              </enricher>
               <generator>
                 <includes>
                   <include>thorntail-v2</include>
