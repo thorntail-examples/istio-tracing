@@ -124,7 +124,6 @@ It also assumes that you can run the `oc` binary.
   istio-sidecar-injector-7f888f5d68-zc7xm   1/1       Running   0          6m
   istio-telemetry-557d5f9c5c-gfkqh          2/2       Running   0          7m
   jaeger-5c999c56f8-kkj9s                   2/2       Running   0          8m
-  kiali-cd688499c-77dsf                     1/1       Running   0          4m
   prometheus-8d957b748-frxwp                2/2       Running   0          10m
   ```
 
