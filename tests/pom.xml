@@ -45,56 +45,14 @@
     </dependency>
 
     <dependency>
-      <groupId>io.rest-assured</groupId>
-      <artifactId>rest-assured</artifactId>
-      <version>${version.restassured}</version>
-      <scope>test</scope>
+      <groupId>io.thorntail.openshift-test</groupId>
+      <artifactId>thorntail-openshift-test</artifactId>
+      <version>${version.thorntail-openshift-test}</version>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${version.junit}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.arquillian.cube</groupId>
-      <artifactId>arquillian-cube-istio-kubernetes</artifactId>
-      <version>${version.arquillian-cube}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>io.undertow</groupId>
-          <artifactId>undertow-core</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.arquillian.cube</groupId>
-      <artifactId>arquillian-cube-openshift</artifactId>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>io.undertow</groupId>
-          <artifactId>undertow-core</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <version>${version.assertj}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.awaitility</groupId>
-      <artifactId>awaitility</artifactId>
-      <version>${version.awaitility}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.arquillian.junit</groupId>
-      <artifactId>arquillian-junit-standalone</artifactId>
-      <version>${version.arquillian-junit}</version>
+      <groupId>me.snowdrop</groupId>
+      <artifactId>istio-client</artifactId>
+      <version>${version.snowdrop-istio-client}</version>
     </dependency>
   </dependencies>
 
