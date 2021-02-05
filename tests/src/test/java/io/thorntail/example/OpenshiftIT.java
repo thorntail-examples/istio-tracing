@@ -16,14 +16,15 @@
  */
 package io.thorntail.example;
 
-import org.arquillian.cube.istio.api.IstioResource;
-import org.arquillian.cube.openshift.impl.enricher.AwaitRoute;
-import org.arquillian.cube.openshift.impl.enricher.RouteURL;
+import io.thorntail.openshift.test.AdditionalResources;
+import io.thorntail.openshift.test.OpenShiftTest;
+import io.thorntail.openshift.test.injection.TestResource;
+import io.thorntail.openshift.test.injection.WithName;
 import org.assertj.core.api.Condition;
-import org.jboss.arquillian.junit.Arquillian;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -33,19 +34,32 @@ import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 
-@RunWith(Arquillian.class)
-@IstioResource("classpath:istio-gateway.yaml")
+@OpenShiftTest
+@AdditionalResources("classpath:istio-gateway.yaml")
 public class OpenshiftIT {
     private static final String ISTIO_NAMESPACE = "istio-system";
     private static final String JAEGER_NAME = "jaeger";
     private static final String ISTIO_INGRESS_GATEWAY_NAME = "istio-ingressgateway";
 
-    @RouteURL(value = JAEGER_NAME, namespace = ISTIO_NAMESPACE)
-    private String jaeger;
+    @TestResource
+    @WithName(value = JAEGER_NAME, inNamespace = ISTIO_NAMESPACE)
+    private URL jaeger;
 
-    @RouteURL(value = ISTIO_INGRESS_GATEWAY_NAME, path = "/thorntail-istio-tracing", namespace = ISTIO_NAMESPACE)
-    @AwaitRoute
-    private String ingressGateway;
+    @TestResource
+    @WithName(value = ISTIO_INGRESS_GATEWAY_NAME, inNamespace = ISTIO_NAMESPACE)
+    private URL ingressGateway;
+
+    @BeforeEach
+    public void setUp() {
+        await().ignoreExceptions().atMost(5, TimeUnit.MINUTES).untilAsserted(() -> {
+            given()
+                    .baseUri(ingressGateway + "/thorntail-istio-tracing")
+            .when()
+                    .get()
+            .then()
+                    .statusCode(200);
+        });
+    }
 
     @Test
     public void tracingTest() {
@@ -53,7 +67,7 @@ public class OpenshiftIT {
                 - TimeUnit.SECONDS.toMicros(1); // tolerate 1 sec of skew between localhost and Minishift VM
 
         given()
-                .baseUri(ingressGateway)
+                .baseUri(ingressGateway + "/thorntail-istio-tracing")
         .when()
                 .get("/api/greeting")
         .then()
@@ -63,7 +77,7 @@ public class OpenshiftIT {
         await().atMost(20, TimeUnit.SECONDS).untilAsserted(() -> {
             Map<String, Map> processes =
                     given()
-                            .baseUri(jaeger)
+                            .baseUri(jaeger.toString())
                             .relaxedHTTPSValidation()
                     .when()
                             .param("service", ISTIO_INGRESS_GATEWAY_NAME)
