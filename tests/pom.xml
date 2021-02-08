@@ -53,6 +53,12 @@
       <groupId>me.snowdrop</groupId>
       <artifactId>istio-client</artifactId>
       <version>${version.snowdrop-istio-client}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.sun</groupId>
+          <artifactId>tools</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 
