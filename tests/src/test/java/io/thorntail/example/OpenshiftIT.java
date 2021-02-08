@@ -64,7 +64,7 @@ public class OpenshiftIT {
     @Test
     public void tracingTest() {
         long startTime = TimeUnit.MILLISECONDS.toMicros(System.currentTimeMillis())
-                - TimeUnit.SECONDS.toMicros(1); // tolerate 1 sec of skew between localhost and Minishift VM
+                - TimeUnit.SECONDS.toMicros(5); // tolerate 5 secs of skew between localhost and Minishift VM
 
         given()
                 .baseUri(ingressGateway + "/thorntail-istio-tracing")
