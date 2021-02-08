@@ -45,7 +45,7 @@
     <version.maven-war-plugin>3.3.1</version.maven-war-plugin>
     <version.snowdrop-istio-client>1.6.14</version.snowdrop-istio-client>
     <version.thorntail>2.7.0.Final</version.thorntail>
-    <version.thorntail-openshift-test>1.1.0</version.thorntail-openshift-test>
+    <version.thorntail-openshift-test>1.2.0</version.thorntail-openshift-test>
 
     <jkube.generator.from>registry.access.redhat.com/redhat-openjdk-18/openjdk18-openshift:1.8</jkube.generator.from>
   </properties>
