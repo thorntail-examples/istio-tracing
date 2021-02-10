@@ -67,6 +67,7 @@ It also assumes that you can run the `oc` binary.
 - Install the Kiali operator:
 
   ```bash
+  export HELM_REPO_CHART_VERSION=v1.29.0
   bash <(curl -L https://kiali.io/getLatestKialiOperator) --operator-watch-namespace '**' --accessible-namespaces '**' --operator-install-kiali false
   ```
 

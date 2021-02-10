@@ -96,5 +96,41 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>openshift-it</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.eclipse.jkube</groupId>
+            <artifactId>openshift-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>resource</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <enricher>
+                <config>
+                  <jkube-openshift-route>
+                    <!-- the app should be accessed through Istio ingress, not through its own route -->
+                    <generateRoute>false</generateRoute>
+                  </jkube-openshift-route>
+                </config>
+              </enricher>
+              <generator>
+                <includes>
+                  <include>thorntail-v2</include>
+                </includes>
+                <excludes>
+                  <exclude>webapp</exclude>
+                </excludes>
+              </generator>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 </project>
