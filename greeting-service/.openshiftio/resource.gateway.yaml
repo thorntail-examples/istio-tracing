@@ -1,37 +1,39 @@
-apiVersion: networking.istio.io/v1alpha3
-kind: Gateway
-metadata:
-  name: thorntail-istio-tracing-gateway
-spec:
-  selector:
-    istio: ingressgateway # use istio default controller
-  servers:
-  - port:
-      number: 80
-      name: http
-      protocol: HTTP
+apiVersion: v1
+kind: List
+items:
+- apiVersion: networking.istio.io/v1alpha3
+  kind: Gateway
+  metadata:
+    name: thorntail-istio-tracing-gateway
+  spec:
+    selector:
+      istio: ingressgateway # use istio default controller
+    servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+      - "*"
+- apiVersion: networking.istio.io/v1alpha3
+  kind: VirtualService
+  metadata:
+    name: thorntail-istio-tracing-greeting
+  spec:
     hosts:
     - "*"
----
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: thorntail-istio-tracing-greeting
-spec:
-  hosts:
-  - "*"
-  gateways:
-  - thorntail-istio-tracing-gateway
-  http:
-  - match:
-    - uri:
-        prefix: /thorntail-istio-tracing/
-    - uri:
-        prefix: /thorntail-istio-tracing
-    rewrite:
-      uri: /
-    route:
-    - destination:
-        host: thorntail-istio-tracing-greeting
-        port:
-          number: 8080
+    gateways:
+    - thorntail-istio-tracing-gateway
+    http:
+    - match:
+      - uri:
+          prefix: /thorntail-istio-tracing/
+      - uri:
+          prefix: /thorntail-istio-tracing
+      rewrite:
+        uri: /
+      route:
+      - destination:
+          host: thorntail-istio-tracing-greeting
+          port:
+            number: 8080
