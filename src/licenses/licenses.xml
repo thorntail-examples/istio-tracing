@@ -1387,7 +1387,7 @@
         <dependency>
             <groupId>io.thorntail.example</groupId>
             <artifactId>thorntail-istio-tracing-cute-name</artifactId>
-            <version>11</version>
+            <version>12</version>
             <licenses>
                 <license>
                     <name>Apache License 2.0</name>
@@ -1398,7 +1398,7 @@
         <dependency>
             <groupId>io.thorntail.example</groupId>
             <artifactId>thorntail-istio-tracing-greeting</artifactId>
-            <version>11</version>
+            <version>12</version>
             <licenses>
                 <license>
                     <name>Apache License 2.0</name>
